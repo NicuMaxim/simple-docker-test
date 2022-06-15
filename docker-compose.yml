@@ -16,14 +16,38 @@
 version: "3.7"
 services:
   api_service:
-    build: .
-    restart: always
+#    build: .
+    image: maximnicu/docker-spring-application:1.0.1
     ports:
       - 8080:8080
     depends_on:
-      - mongo_db
-  mongo_db:
-    image: "mongo:4.4.3"
-    restart: always
+      - mongodb
+
+  mongodb:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
     ports:
       - 27017:27017
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+
+  mongo_express:
+    image: mongo-express
+    environment:
+#      - ME_CONFIG_MONGODB_SERVER=mongodb
+#      - ME_CONFIG_MONGODB_PORT=27017
+#      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+#      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+       - ME_CONFIG_MONGODB_URL=mongodb://admin:password@mongodb:27017/
+    depends_on:
+      - mongodb
+    ports:
+      - 8081:8081
+    restart: always
+
+volumes:
+  mongo-data:
+    driver: local
